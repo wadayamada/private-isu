@@ -29,7 +29,7 @@ pt-query-digest:
 
 .PHONY: alp
 alp:
-	sudo cat /var/log/nginx/access.log | alp json --sort sum
+	sudo cat /var/log/nginx/access.log | alp json --sort sum -r -m "/posts/[0-9]+, /image/[0-9]+, /@.+"
 
 .PHONY: mysql
 mysql:
