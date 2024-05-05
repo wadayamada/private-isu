@@ -47,8 +47,8 @@ rotate:
 
 .PHONY: restart
 restart:
-	sudo systemd restart nginx.service
-	sudo systemd restart mysql.service
+	sudo systemctl restart nginx.service
+	sudo systemctl restart mysql.service
 
 .PHONY: benchmark
 benchmark: rotate restart slow-on 
