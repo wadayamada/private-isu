@@ -1,3 +1,5 @@
+DATE:=$(shell date +%Y%m%d-%H%M%S)
+
 DB_USER:=isuconp
 DB_PASS:=isuconp
 DB_NAME:=isuconp
@@ -29,3 +31,11 @@ pt-query-digest:
 mysql:
 	mysql -u$(DB_USER) -p$(DB_PASS) $(DB_NAME)
 
+.PHONY: rotate
+rotate:
+	sudo mv /var/log/mysql/slow-query.log /var/log/mysql/slow-query.log.`date +%Y%m%d-%H%M%S`
+	sudo mv /var/log/nginx/access.log /var/log/nginx/access.log.`date +%Y%m%d-%H%M%S`
+
+.PHONY: mysql
+benchmark: rotate slow-on
+	/home/isucon/private_isu/benchmarker/bin/benchmarker -u /home/isucon/private_isu/benchmarker/userdata -t http://localhost
