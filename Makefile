@@ -40,8 +40,8 @@ rotate:
 	sudo chmod 666 /var/log/mysql/slow-query.log
 	sudo touch /var/log/nginx/access.log
 	sudo chmod 666 /var/log/nginx/access.log
-	sudo systemd restart nginx.service
-	sudo systemd restart mysql.service
+	sudo systemctl restart nginx.service
+	sudo systemctl restart mysql.service
 
 .PHONY: benchmark
 benchmark: rotate slow-on
