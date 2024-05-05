@@ -25,7 +25,7 @@ install-pt-query-digest:
 pt-query-digest:
 	sudo pt-query-digest /var/log/mysql/slow-query.log
 
-.PHONY mysql
+.PHONY: mysql
 mysql:
 	mysql -u$(DB_USER) -p$(DB_PASS) $(DB_NAME)
 
