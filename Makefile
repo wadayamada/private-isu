@@ -14,7 +14,7 @@ MYSQL_LOG:=/var/log/mysql/slow-query.log
 
 .PHONY: slow-on
 slow-on:
-	@echo "slow-querry ONにします"
+	@echo "slow-query-logをONにします"
 	sudo mysql -e "set global slow_query_log_file = '$(MYSQL_LOG)'; set global long_query_time = 0; set global slow_query_log = ON;"
 	sudo mysql -e "show variables like 'slow%';"
 
@@ -33,9 +33,14 @@ mysql:
 
 .PHONY: rotate
 rotate:
+	@echo "rotateします"
 	sudo mv /var/log/mysql/slow-query.log /var/log/mysql/slow-query.log.`date +%Y%m%d-%H%M%S`
 	sudo mv /var/log/nginx/access.log /var/log/nginx/access.log.`date +%Y%m%d-%H%M%S`
+	sudo touch /var/log/mysql/slow-query.log
+	sudo chmod 666 /var/log/mysql/slow-query.log
+	sudo touch /var/log/nginx/access.log
+	sudo chmod 666 /var/log/nginx/access.log
 
-.PHONY: mysql
+.PHONY: benchmark
 benchmark: rotate slow-on
 	/home/isucon/private_isu/benchmarker/bin/benchmarker -u /home/isucon/private_isu/benchmarker/userdata -t http://localhost
