@@ -27,6 +27,10 @@ install-pt-query-digest:
 pt-query-digest:
 	sudo pt-query-digest /var/log/mysql/slow-query.log
 
+.PHONY: alp
+alp:
+	sudo cat /var/log/nginx/access.log | alp json --sort sum
+
 .PHONY: mysql
 mysql:
 	mysql -u$(DB_USER) -p$(DB_PASS) $(DB_NAME)
@@ -40,9 +44,13 @@ rotate:
 	sudo chmod 666 /var/log/mysql/slow-query.log
 	sudo touch /var/log/nginx/access.log
 	sudo chmod 666 /var/log/nginx/access.log
+
+
+.PHONY: restart
+restart:
 	sudo systemd restart nginx.service
 	sudo systemd restart mysql.service
 
 .PHONY: benchmark
-benchmark: rotate slow-on
+benchmark: rotate restart slow-on 
 	/home/isucon/private_isu/benchmarker/bin/benchmarker -u /home/isucon/private_isu/benchmarker/userdata -t http://localhost
