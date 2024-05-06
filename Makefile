@@ -47,9 +47,11 @@ rotate:
 
 .PHONY: restart
 restart:
+	@echo "--- 再起動 ---"
 	sudo systemctl restart nginx.service
 	sudo systemctl restart mysql.service
 
 .PHONY: benchmark
 benchmark: rotate restart slow-on 
+	@echo "--- benchmark ---"
 	/home/isucon/private_isu/benchmarker/bin/benchmarker -u /home/isucon/private_isu/benchmarker/userdata -t http://localhost
