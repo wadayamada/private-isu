@@ -50,8 +50,14 @@ restart:
 	@echo "--- 再起動 ---"
 	sudo systemctl restart nginx.service
 	sudo systemctl restart mysql.service
+	sudo systemctl restart isu-go.service
+
+.PHONY: build-go
+build-go: 
+	@echo "--- build go ---"
+	sudo go build /home/isucon/private_isu/webapp/golang/app.go
 
 .PHONY: benchmark
-benchmark: rotate restart slow-on 
+benchmark: rotate build-go restart slow-on 
 	@echo "--- benchmark ---"
 	/home/isucon/private_isu/benchmarker/bin/benchmarker -u /home/isucon/private_isu/benchmarker/userdata -t http://localhost
