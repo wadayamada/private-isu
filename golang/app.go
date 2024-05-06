@@ -194,6 +194,7 @@ func makePosts(results []Post, csrfToken string, allComments bool) ([]Post, erro
 		for i := 0; i < len(comments); i++ {
 			userIDs = append(userIDs, comments[i].UserID)
 		}
+		fmt.Print(userIDs)
 
 		// プレースホルダを含むSQLクエリを生成
 		queryForUsers := fmt.Sprintf("SELECT * FROM `users` WHERE `id` IN (%s)", strings.Join(strings.Split(fmt.Sprint(userIDs), " "), ","))
@@ -204,6 +205,7 @@ func makePosts(results []Post, csrfToken string, allComments bool) ([]Post, erro
 		if err != nil {
 			return nil, err
 		}
+		fmt.Print(users)
 
 		// ユーザーIDをキーとしてユーザーをマップ化する
 		userMap := make(map[int]User)
