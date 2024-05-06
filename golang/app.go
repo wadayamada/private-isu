@@ -202,7 +202,12 @@ func makePosts(results []Post, csrfToken string, allComments bool) ([]Post, erro
 		log.Print(queryForUsers)
 		// SQLクエリを実行してユーザーを取得
 		var users []User
-		err = db.Select(&users, queryForUsers, userIDs)
+
+		var args []interface{}
+		for _, tag := range userIDs {
+			args = append(args, tag)
+		}
+		err = db.Select(&users, queryForUsers, args...)
 		if err != nil {
 			return nil, err
 		}
