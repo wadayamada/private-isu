@@ -197,20 +197,23 @@ func makePosts(results []Post, csrfToken string, allComments bool) ([]Post, erro
 		log.Print(userIDs)
 
 		// プレースホルダを含むSQLクエリを生成
-		repeat := strings.Repeat("?,", len(userIDs)-1) + "?"
-		queryForUsers := fmt.Sprintf("SELECT * FROM `users` WHERE `id` IN (%s)", repeat)
-		log.Print(queryForUsers)
-		// SQLクエリを実行してユーザーを取得
-		var users []User
+		var users []User = []User{}
+		if len(userIDs) > 0 {
+			repeat := strings.Repeat("?,", len(userIDs)-1) + "?"
+			queryForUsers := fmt.Sprintf("SELECT * FROM `users` WHERE `id` IN (%s)", repeat)
+			log.Print(queryForUsers)
+			// SQLクエリを実行してユーザーを取得
 
-		var args []interface{}
-		for _, tag := range userIDs {
-			args = append(args, tag)
+			var args []interface{}
+			for _, tag := range userIDs {
+				args = append(args, tag)
+			}
+			err = db.Select(&users, queryForUsers, args...)
+			if err != nil {
+				return nil, err
+			}
 		}
-		err = db.Select(&users, queryForUsers, args...)
-		if err != nil {
-			return nil, err
-		}
+
 		log.Print(users)
 
 		// ユーザーIDをキーとしてユーザーをマップ化する
