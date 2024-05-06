@@ -190,12 +190,40 @@ func makePosts(results []Post, csrfToken string, allComments bool) ([]Post, erro
 			return nil, err
 		}
 
+		var userIDs []int = []int{}
 		for i := 0; i < len(comments); i++ {
-			err := db.Get(&comments[i].User, "SELECT * FROM `users` WHERE `id` = ?", comments[i].UserID)
-			if err != nil {
-				return nil, err
+			userIDs = append(userIDs, comments[i].UserID)
+		}
+
+		// プレースホルダを含むSQLクエリを生成
+		queryForUsers := fmt.Sprintf("SELECT * FROM `users` WHERE `id` IN (%s)", strings.Join(strings.Split(fmt.Sprint(userIDs), " "), ","))
+
+		// SQLクエリを実行してユーザーを取得
+		var users []User
+		err = db.Select(&users, queryForUsers)
+		if err != nil {
+			return nil, err
+		}
+
+		// ユーザーIDをキーとしてユーザーをマップ化する
+		userMap := make(map[int]User)
+		for _, user := range users {
+			userMap[user.ID] = user
+		}
+
+		// コメントを取得し、ユーザーをマップから取得
+		for i := 0; i < len(comments); i++ {
+			if user, ok := userMap[comments[i].UserID]; ok {
+				comments[i].User = user
 			}
 		}
+
+		// for i := 0; i < len(comments); i++ {
+		// 	err := db.Get(&comments[i].User, "SELECT * FROM `users` WHERE `id` = ?", comments[i].UserID)
+		// 	if err != nil {
+		// 		return nil, err
+		// 	}
+		// }
 
 		// reverse
 		for i, j := 0, len(comments)-1; i < j; i, j = i+1, j-1 {
