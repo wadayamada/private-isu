@@ -685,15 +685,20 @@ func postIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mime := ""
+	imageType := ""
+
 	if file != nil {
 		// 投稿のContent-Typeからファイルのタイプを決定する
 		contentType := header.Header["Content-Type"][0]
 		if strings.Contains(contentType, "jpeg") {
 			mime = "image/jpeg"
+			imageType = ".jpeg"
 		} else if strings.Contains(contentType, "png") {
 			mime = "image/png"
+			imageType = ".png"
 		} else if strings.Contains(contentType, "gif") {
 			mime = "image/gif"
+			imageType = ".gif"
 		} else {
 			session := getSession(r)
 			session.Values["notice"] = "投稿できる画像形式はjpgとpngとgifだけです"
@@ -733,6 +738,21 @@ func postIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pid, err := result.LastInsertId()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	// ファイルをローカルに保存する
+	destinationFile, err := os.Create("/home/isucon/private_isu/webapp/public/aaa/" + strconv.Itoa(int(pid)) + imageType)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	defer destinationFile.Close()
+
+	// ファイルデータをコピー
+	_, err = io.Copy(destinationFile, file)
 	if err != nil {
 		log.Print(err)
 		return
