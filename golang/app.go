@@ -174,18 +174,50 @@ func getFlash(w http.ResponseWriter, r *http.Request, key string) string {
 func makePosts(results []Post, csrfToken string, allComments bool) ([]Post, error) {
 	var posts []Post
 
+	// postIDのスライスを作成
+	var postIDs []int
 	for _, p := range results {
-		err := db.Get(&p.CommentCount, "SELECT COUNT(*) AS `count` FROM `comments` WHERE `post_id` = ?", p.ID)
+		postIDs = append(postIDs, p.ID)
+	}
+
+	// SQLクエリを実行してコメントのカウントを取得
+	var counts []struct {
+		PostID int `db:"post_id"`
+		Count  int `db:"count"`
+	}
+
+	if len(postIDs) > 0 {
+		repeat := strings.Repeat("?,", len(postIDs)-1) + "?"
+		queryForUsers := fmt.Sprintf("SELECT `post_id`, COUNT(*) AS `count` FROM `comments` WHERE `post_id` IN (%s) GROUP BY `post_id`", repeat)
+		var args []interface{}
+		for _, tag := range postIDs {
+			args = append(args, tag)
+		}
+		err := db.Select(&counts, queryForUsers, args...)
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	// postIDをキーとしてカウントをマップ化する
+	countMap := make(map[int]int)
+	for _, c := range counts {
+		countMap[c.PostID] = c.Count
+	}
+
+	for i, p := range results {
+		results[i].CommentCount = countMap[results[i].ID]
+		// err := db.Get(&p.CommentCount, "SELECT COUNT(*) AS `count` FROM `comments` WHERE `post_id` = ?", p.ID)
+		// if err != nil {
+		// 	return nil, err
+		// }
 
 		query := "SELECT * FROM `comments` WHERE `post_id` = ? ORDER BY `created_at` DESC"
 		if !allComments {
 			query += " LIMIT 3"
 		}
 		var comments []Comment
-		err = db.Select(&comments, query, p.ID)
+		err := db.Select(&comments, query, p.ID)
 		if err != nil {
 			return nil, err
 		}
