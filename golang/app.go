@@ -197,11 +197,12 @@ func makePosts(results []Post, csrfToken string, allComments bool) ([]Post, erro
 		log.Print(userIDs)
 
 		// プレースホルダを含むSQLクエリを生成
-		queryForUsers := fmt.Sprintf("SELECT * FROM `users` WHERE `id` IN (%s)", strings.Join(strings.Split(fmt.Sprint(userIDs), " "), ","))
+		repeat := strings.Repeat("?,", len(userIDs)-1) + "?"
+		queryForUsers := fmt.Sprintf("SELECT * FROM `users` WHERE `id` IN (%s)", repeat)
 		log.Print(queryForUsers)
 		// SQLクエリを実行してユーザーを取得
 		var users []User
-		err = db.Select(&users, queryForUsers)
+		err = db.Select(&users, queryForUsers, userIDs)
 		if err != nil {
 			return nil, err
 		}
