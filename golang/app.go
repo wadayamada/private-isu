@@ -198,7 +198,7 @@ func makePosts(results []Post, csrfToken string, allComments bool) ([]Post, erro
 
 		// プレースホルダを含むSQLクエリを生成
 		queryForUsers := fmt.Sprintf("SELECT * FROM `users` WHERE `id` IN (%s)", strings.Join(strings.Split(fmt.Sprint(userIDs), " "), ","))
-
+		log.Print(queryForUsers)
 		// SQLクエリを実行してユーザーを取得
 		var users []User
 		err = db.Select(&users, queryForUsers)
